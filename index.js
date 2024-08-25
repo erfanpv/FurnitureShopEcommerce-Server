@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use("/api/users", userRouter);
+app.use("/api/user", userRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () =>
