@@ -1,6 +1,6 @@
-import userDb from "../models/userSchema.js";
-import { comparePassword, hashPassword } from "../utils/bcrypt.js";
-import { generateToken } from "../utils/token.js";
+import userDb from "../../models/schemas/userSchema.js";
+import { comparePassword, hashPassword } from "../../utils/bcrypt.js";
+import { generateToken } from "../../utils/token.js";
 
 export const signUp = async (req, res) => {
   try {

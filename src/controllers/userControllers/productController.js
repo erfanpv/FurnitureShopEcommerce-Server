@@ -1,4 +1,4 @@
-import productDb from "../models/productSchem";
+import productDb from "../../models/schemas/productSchem";
 
 export const getAllProducts = async (req, res) => {
   try {
