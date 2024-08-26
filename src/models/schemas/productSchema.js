@@ -7,6 +7,7 @@ const productSchem = new mongoose.Schema(
     price: { type: Number, required: true },
     image: { type: String },
     category: { type: String, required: true },
+    is_deleted: { type: Boolean, default: false },
     is_Listed: { type: Boolean, default: true },
     stockQuantity: { type: Number },
   },
@@ -15,5 +16,5 @@ const productSchem = new mongoose.Schema(
   }
 );
 
-const productDb = mongoose.model("Product", productSchem);
+const productDb = mongoose.model("products", productSchem);
 export default productDb;
