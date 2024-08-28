@@ -7,6 +7,8 @@ export const signUp = async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     const existingUser = await userDb.findOne({ email });
     const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordFormat = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 
     if (existingUser) {
       return res.status(409).json({ message: `User already exist` });
@@ -17,9 +19,11 @@ export const signUp = async (req, res) => {
       lastName.length === 0 ||
       password.length === 0
     ) {
-      return res.status(400).json({ message: "Space only doesn't support" });
+      return res.status(400).json({ message: "Space not support" });
     } else if (!emailFormat.test(email)) {
       return res.status(400).json({ message: "Invalid email address" });
+    }else if (!passwordFormat.test(password)) {
+      return res.status(400).json({ message: "Password not Strong" });
     }
 
     const hashedPassword = await hashPassword(password);

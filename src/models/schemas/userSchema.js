@@ -43,11 +43,15 @@ const userSchema = new mongoose.Schema(
     },
     order: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "order",
+      ref: "orders",
     },
     wishList: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "wishlist",
+    },
+    address: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "address",
     },
   },
   {
