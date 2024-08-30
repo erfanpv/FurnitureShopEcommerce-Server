@@ -2,7 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDb from "./src/config/db.js";
-import { userRouter } from "./src/routes/userRouter.js";
+import userRouter from "./src/routes/userRouter.js";
+import adminRouter from "./src/routes/adminRouter.js";
 
 const app = express();
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api/users", userRouter);
+app.use("/api/admin", adminRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () =>
