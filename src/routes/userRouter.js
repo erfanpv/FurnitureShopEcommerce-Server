@@ -15,7 +15,6 @@ userRouter.post("/login", login);
 
 userRouter.get("/products", getAllProducts);
 userRouter.get("/products/:id", getProductWithId);
-
 userRouter.get("/products/category/:categoryname", getproductWithCategory);
 
 userRouter.post("/:id/wishlist",addToWishList);
@@ -33,4 +32,4 @@ userRouter.post("/:id/address",addAddress)
 userRouter.get("/:id/address",getAddress)
 userRouter.put("/:id/address",updateAddress)
 
-export { userRouter };
+export default userRouter;
