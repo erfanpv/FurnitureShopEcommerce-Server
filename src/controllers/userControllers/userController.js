@@ -4,7 +4,7 @@ import { generateToken } from "../../utils/token.js";
 
 export const signUp = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password,role } = req.body;
     const existingUser = await userDb.findOne({ email });
     const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordFormat = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -33,6 +33,7 @@ export const signUp = async (req, res) => {
       lastName,
       email,
       password: hashedPassword,
+      role
     });
     await user.save();
     return res.status(200).json({ message: "Success" });
