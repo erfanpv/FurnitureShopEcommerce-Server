@@ -16,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/users", userRouter);
 app.use("/api/admin", adminRouter);
+app.use("*", (req,res) => res.send("This Route is Not Available"));
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () =>
