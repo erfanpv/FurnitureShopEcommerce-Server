@@ -2,13 +2,14 @@ import productDb from "../../models/schemas/productSchema.js";
 
 export const getAllProducts = async (req, res) => {
   try {
-    const productsList = await productDb.find();
-    if (!productsList) {
-      return res.status(404).json({ message: "Products Not found" });
+    const productsList = await productDb.find({is_Listed: { $ne: false } });    
+
+    if (!productsList || productsList?.length===0) {
+      return res.status(404).json({success:false, message: "Products Not found" });
     }
-    res.status(200).json(productsList);
+    return res.status(200).json({ success: true ,message: "All Products Fetched",data:productsList});
   } catch (error) {
-    res.status(500).json({ message: `Error fetching Products - ${error.message}`});
+    res.status(500).json({success:false, message: `Error fetching Products - ${error.message}`});
   }
 };
 
@@ -17,12 +18,12 @@ export const getProductWithId = async (req, res) => {
     const productId = req.params.id;
     const productById = await productDb.findById(productId);
 
-    if (!productById) {
-      return res.status(404).json({ message: "Product not found" });
+    if (!productById || productById?.length===0) {
+      return res.status(404).json({success:false,message: "Product not found" });
     }
-    res.status(200).json(productById);
+    res.status(200).json({success:true,message: "Product Fetched",data:productById});
   } catch (error) {
-    res.status(500).json({ message: `Error fetching product - ${error.message}` });
+    res.status(500).json({success:false, message: `Error fetching product - ${error.message}` });
   }
 };
 
