@@ -3,7 +3,9 @@ import { adminLogin } from "../controllers/adminControllers/adminLoginController
 import {  getAllUsers } from "../controllers/adminControllers/customerController.js";
 import checkAuth from "../middleware/checkAuth.js";
 import userManagement from "../middleware/handleUserManagement.js";
-import { adminGetAllProducts, adminGetProductWithId } from "../controllers/adminControllers/adminProductController.js";
+import { addProduct, adminGetAllProducts, adminGetProductWithId, deleteProduct, updateProduct } from "../controllers/adminControllers/adminProductController.js";
+import { getAllOrders } from "../controllers/adminControllers/adminOrderControllers.js";
+import { getTotalSales, getTotalSalesCount } from "../controllers/adminControllers/adminDashBoard.js";
 
 const adminRouter = express.Router();
 
@@ -14,5 +16,14 @@ adminRouter.get("/users/:id",checkAuth,userManagement,(req, res, next) => req.co
 
 adminRouter.get("/products",checkAuth,adminGetAllProducts)
 adminRouter.get("/products/:id",checkAuth,adminGetProductWithId)
+adminRouter.post("/products",checkAuth,addProduct)
+adminRouter.put("/products/:id",checkAuth,updateProduct)
+adminRouter.delete("/products",checkAuth,deleteProduct)
+
+adminRouter.get("/orders",checkAuth,getAllOrders)
+adminRouter.get("/orders/:id",checkAuth,getAllOrders)
+
+// adminRouter.get("/dashboard-revenue",getTotalSales)
+adminRouter.get("/dashboard-revenue",getTotalSalesCount)
 
 export default adminRouter
