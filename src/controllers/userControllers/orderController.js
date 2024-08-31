@@ -3,7 +3,7 @@ import addressDb from "../../models/schemas/addressSchema.js";
 import productDb from "../../models/schemas/productSchema.js";
 
 export const getOrdersByUser = async (req, res) => {
-  const userId = req.params.id; 
+  const {userId }= req.body 
 
   try {
     const orders = await orderDb.find({ userId })
@@ -29,11 +29,11 @@ export const getOrdersByUser = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   try {
-    const userId = req.params.id;
-    const { products, address, payment_method } = req.body;
+    const { products, address, payment_method,userId} = req.body;    
+
 
     if (!products || !address || !payment_method) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({success:false, message: "All fields are required." });
     }
 
     const productIds = products.map((product) => product.productId);
@@ -47,7 +47,9 @@ export const createOrder = async (req, res) => {
       }
     });
 
+    
     let orderData = await orderDb.findOne({ userId });
+
 
     const orderDetails = {
       products,
@@ -58,19 +60,15 @@ export const createOrder = async (req, res) => {
       createdAt: new Date(),
     };
 
-    if (!orderData) {
-      orderData = new orderDb({
-        userId,
-        orderDetails: [orderDetails],
-      });
+    if (!orderData) {      
+      orderData = new orderDb({userId,orderDetails: [orderDetails]});
     } else {
       orderData.orderDetails.push(orderDetails);
     }
 
     await orderData.save();
-    res.status(201).json({ message: "Order Placed Successfully" });
+    res.status(201).json({success:true, message: "Order Placed Successfully" });
   } catch (error) {
-    console.error("Error creating order:", error);
-    res.status(500).json({ message: `Error creating order - ${error.message}` });
+    res.status(500).json({success:false, message: `Error creating order - ${error.message}` });
   }
 };
