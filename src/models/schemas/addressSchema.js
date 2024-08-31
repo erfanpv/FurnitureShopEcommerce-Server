@@ -7,16 +7,14 @@ const addressSchema = new mongoose.Schema({
     required: true,
   },
   addressData: {
-    pinCode: { type: Number, required: true, min: 100000, max: 999999 },
-    locality: { type: String, required: true, trim: true },
+    pincode: { type: String, required: true, min: 100000, max: 999999 },
+    street: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
     state: { type: String, required: true, trim: true },
-    addressLine: { type: String, required: true, trim: true },
     country: { type: String, required: true, default: "India", trim: true },
   },
 });
 
-// addressSchema.index({ userId: 1 });
 
-const addressDb = mongoose.model("Address", addressSchema);
+const addressDb = mongoose.model("address", addressSchema);
 export default addressDb;
