@@ -23,6 +23,7 @@ export const adminGetAllProducts = async (req, res) => {
     if (!productsList || productsList?.length===0) {
       return res.status(404).json({success:false, message: "Products Not found" });
     }
+    res.status(200).json({success:true,message:"Products fetched successfully",datas:productsList})
   } catch (error) {
     res.status(500).json({success:false, message: `Error fetching Products - ${error.message}`});
   }

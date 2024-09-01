@@ -2,18 +2,23 @@ import { adminBlockUser, adminUnBlockUser, getUserById } from "../controllers/ad
 
 
 const userManagement = (req, res, next) => {
-  const { action } = req.body;
+  try {
+    const { action } = req.body;
 
-  if (action === "block") {
-    req.controller = adminBlockUser
-  } else if (action === "unblock") {
-    req.controller = adminUnBlockUser
-  }
-  else {
-    req.controller = getUserById;
-  }
+    if (action === "block") {
+      req.controller = adminBlockUser;
+    } else if (action === "unblock") {
+      req.controller = adminUnBlockUser;
+    } else {
+      req.controller = getUserById;
+    }
 
-  next();
+    next();
+  } catch (error) {
+    res.send(500).json({ success: false, message: `Bad request ${error.message}` });
+  }
 };
 
-export default userManagement;
+
+export default userManagement
+
