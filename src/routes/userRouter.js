@@ -7,6 +7,7 @@ import handleCartAction from "../middleware/handleCartAction.js";
 import checkAuth from "../middleware/checkAuth.js";
 import { createOrder,  getOrdersByUser } from "../controllers/userControllers/orderController.js";
 import { addAddress, getAddress, updateAddress } from "../controllers/userControllers/addressController.js";
+import handleController from "../utils/constant.js";
 
 const userRouter = express.Router();
 
@@ -22,7 +23,7 @@ userRouter.get("/:id/wishlist",checkAuth,loadWishListPage);
 userRouter.delete("/:id/wishlist",removeFromWishList);
 
 userRouter.get("/:id/cart",loadCart);
-userRouter.post("/:id/cart", handleCartAction, (req, res, next) => req.controller(req, res, next));
+userRouter.post("/:id/cart", handleCartAction, handleController);
 userRouter.delete("/:id/cart",removeCart);
 
 userRouter.post("/orders", createOrder);
