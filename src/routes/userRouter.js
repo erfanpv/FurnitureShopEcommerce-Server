@@ -5,9 +5,10 @@ import { loadWishListPage, removeFromWishList, toggleWishListItem } from "../con
 import { loadCart, removeCart } from "../controllers/userControllers/cartController.js";
 import handleCartAction from "../middleware/handleCartAction.js";
 import checkAuth from "../middleware/checkAuth.js";
-import { createOrder,  getOrdersByUser } from "../controllers/userControllers/orderController.js";
+import { createOrder,  createOrderbyCart,  getOrdersByUser } from "../controllers/userControllers/orderController.js";
 import { addAddress, getAddress, updateAddress } from "../controllers/userControllers/addressController.js";
 import handleController from "../utils/constant.js";
+import { stripeIntent } from "../controllers/userControllers/stripeController.js";
 
 const userRouter = express.Router();
 
@@ -26,7 +27,10 @@ userRouter.get("/:id/cart",loadCart);
 userRouter.post("/:id/cart", handleCartAction, handleController);
 userRouter.delete("/:id/cart",removeCart);
 
+userRouter.post("/payment/:id",checkAuth,stripeIntent)
+
 userRouter.post("/orders", createOrder);
+userRouter.post("/cart/orders", createOrderbyCart);
 userRouter.get("/orders", getOrdersByUser);
 
 userRouter.post("/:id/address",addAddress)
