@@ -20,7 +20,8 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
-    "mongoose": "^8.5.4"
+    "mongoose": "^8.5.4",
+    "stripe": "^16.9.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
