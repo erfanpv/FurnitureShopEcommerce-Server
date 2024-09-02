@@ -1,6 +1,8 @@
+import mongoose from "mongoose";
 import orderDb from "../../models/schemas/orderSchema.js";
 import addressDb from "../../models/schemas/addressSchema.js";
 import productDb from "../../models/schemas/productSchema.js";
+import cartDb from "../../models/schemas/cartSchema.js";
 
 export const getOrdersByUser = async (req, res) => {
   const {userId }= req.body 
@@ -32,7 +34,7 @@ export const createOrder = async (req, res) => {
     const { products, address, payment_method,userId} = req.body;    
 
 
-    if (!products || !address || !payment_method) {
+    if (!products || !address || !payment_method ||!userId) {
       return res.status(400).json({success:false, message: "All fields are required." });
     }
 
@@ -47,9 +49,7 @@ export const createOrder = async (req, res) => {
       }
     });
 
-    
     let orderData = await orderDb.findOne({ userId });
-
 
     const orderDetails = {
       products,
@@ -67,6 +67,58 @@ export const createOrder = async (req, res) => {
     }
 
     await orderData.save();
+    res.status(201).json({success:true, message: "Order Placed Successfully" });
+  } catch (error) {
+    res.status(500).json({success:false, message: `Error creating order - ${error.message}` });
+  }
+};
+
+
+export const createOrderbyCart = async (req, res) => {
+  try {
+    const {address, payment_method, cartId,userId} = req.body;
+
+    if (!cartId || !address || !payment_method) {
+      return res.status(400).json({success:false, message: "All fields are required." });
+    } 
+    const cart = await cartDb.aggregate([ { $match: { _id: new mongoose.Types.ObjectId(cartId) } } ]);
+
+    if (!cart.length || cart[0].userId.toString() !== userId) {
+      return res.status(400).json({ success: false, error: "Invalid cart or user" });
+    }
+
+    const cartProducts = await cart[0].products;
+
+    let totalAmount = 0;
+    for (const item of cartProducts) {
+      const product = await productDb.findById(item.productId);
+      if (product) {
+        totalAmount += product.price * item.quantity;
+      }
+    }
+
+    let orderData = await orderDb.findOne({ userId });
+
+    const orderDetails = {
+      products:cartProducts,
+      total: totalAmount,
+      status: "Placed", 
+      payment_method,
+      address,
+      createdAt: new Date(),
+    };
+
+    if (!orderData) {      
+      orderData = new orderDb({userId,orderDetails: [orderDetails]});
+    } else {
+      orderData.orderDetails.push(orderDetails);
+    }
+
+    await orderData.save();
+
+    //if the order is success is the cart is empty
+    await cartDb.deleteOne({ _id: new mongoose.Types.ObjectId(cartId) });
+    
     res.status(201).json({success:true, message: "Order Placed Successfully" });
   } catch (error) {
     res.status(500).json({success:false, message: `Error creating order - ${error.message}` });
