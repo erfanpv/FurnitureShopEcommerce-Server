@@ -5,28 +5,25 @@ import productDb from "../../models/schemas/productSchema.js";
 import cartDb from "../../models/schemas/cartSchema.js";
 
 export const getOrdersByUser = async (req, res) => {
-  const {userId }= req.body 
-
-  try {
+  try {   
+    const userId = req.params.id;
     const orders = await orderDb.find({ userId })
       .populate({
-        path: 'orderDetails.products.productId',
-        model: productDb, 
+        path: 'orderDetails.products.productId', 
+        model: 'products',
         select: 'productName price category image', 
-      })
-      .populate({
-        path: 'orderDetails.address',
-        model: addressDb, 
-        select: 'addressData', 
-      })
-      .exec();
+      }).exec();
+    
+    if (!orders.length) {
+      return res.status(404).json({ success: false, message: "No orders found for this user" });
+    }
 
-    res.status(200).json(orders);
+    res.status(200).json({ success: true, message: "Orders Fetched", data: orders });
   } catch (error) {
-    console.error("Error fetching orders with full populate:", error);
-    res.status(500).json({ message: "Error fetching orders", error: error.message });
+    res.status(500).json({ success: false, message: "Error fetching orders", error: error.message });
   }
-  };
+};
+
 
 
 export const createOrder = async (req, res) => {
@@ -52,6 +49,7 @@ export const createOrder = async (req, res) => {
     let orderData = await orderDb.findOne({ userId });
 
     const orderDetails = {
+      orderId:new Date(),
       products,
       total: totalAmount,
       status: "Placed", 
@@ -76,9 +74,9 @@ export const createOrder = async (req, res) => {
 
 export const createOrderbyCart = async (req, res) => {
   try {
-    const {address, payment_method, cartId,userId} = req.body;
+    const { payment_method, cartId,userId} = req.body;
 
-    if (!cartId || !address || !payment_method) {
+    if (!cartId ) {
       return res.status(400).json({success:false, message: "All fields are required." });
     } 
     const cart = await cartDb.aggregate([ { $match: { _id: new mongoose.Types.ObjectId(cartId) } } ]);
@@ -100,11 +98,11 @@ export const createOrderbyCart = async (req, res) => {
     let orderData = await orderDb.findOne({ userId });
 
     const orderDetails = {
+      orderId:new Date(),
       products:cartProducts,
       total: totalAmount,
       status: "Placed", 
       payment_method,
-      address,
       createdAt: new Date(),
     };
 

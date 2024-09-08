@@ -5,9 +5,17 @@ const hashPassword = (password) => {
   return hashedPassword;
 };
 
-const comparePassword = (password, userPassword) => {
-  const comparedPassword = bcrypt.compare(password, userPassword);
-  return comparedPassword;
+
+const comparePassword = async (password, userPassword) => {
+  try {
+    const comparedPassword = await bcrypt.compare(password, userPassword);
+    return comparedPassword; 
+  } catch (error) {
+    console.error("Error comparing passwords:", error);
+    return false; 
+  }
 };
+
+
 
 export { hashPassword, comparePassword };

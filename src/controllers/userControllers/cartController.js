@@ -5,12 +5,12 @@ export const loadCart = async (req, res) => {
     const userId = req.params.id;
     const cart = await cartDb.findOne({ userId }).populate('products.productId').exec()
     if (!cart || cart.products.length===0) {
-      return res.status(400).json({ message: `Cart not found` });
+      return res.status(400).json({success:false, message: `Cart not found` });
   }
-  res.status(200).json(cart.products);
+  res.status(200).json({success:true,message:"Cart Load Successfully",data:cart.products});
 
   } catch (error) {
-    res.status(400).json({ message: `Fetching Failed Cart -  ${error.message}` });
+    res.status(400).json({success:false, message: `Fetching Failed Cart -  ${error.message}` });
   }
 };
 
@@ -39,11 +39,9 @@ export const addCart = async (req, res) => {
 
     await cart.save();
 
-    res.status(200).json({ message: `Product added successfully`, cart });
+    res.status(200).json({success:true, message: `Product added successfully`, data:cart });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: `Failed to add product - ${error.message}` });
+    res.status(500).json({success:false,message: `Failed to add product - ${error.message}` });
   }
 };
 
@@ -57,9 +55,9 @@ export const removeCart = async (req,res) => {
       { new: true }
     );
 
-    res.status(200).json(`Product removed from Cart`);
+    res.status(200).json({success:true,message:`Product removed from Cart`});
   }catch (error) {
-    res.status(500).json({ message: `internal server error - ${error.message}` });
+    res.status(500).json({success:false, message: `Failed Remove Product - ${error.message}` });
   }
 }
 
@@ -80,10 +78,10 @@ export const incrementProductFromCart = async (req,res) => {
 
     await cart.save();
 
-    res.status(200).json(`Quantity successfully increased `);
+    res.status(200).json({success:true,message:`Quantity successfully increased `});
     
   } catch (error) {
-    res.status(500).json({ message: `internal server error - ${error.message}` });
+    res.status(500).json({success:false, message: `Quantiy Update Failed  - ${error.message}` });
   }
 }
 
@@ -104,10 +102,10 @@ export const decrementProductFromCart = async (req,res) => {
 
     await cart.save();
 
-    res.status(200).json(`Quantity successfully decreased `);
+    res.status(200).json({success:true,message:`Quantity successfully decreased `});
     
   } catch (error) {
-    res.status(500).json({ message: `internal server error - ${error.message}` });
+    res.status(500).json({success:false, message: `Quantiy Update Failed - ${error.message}` });
   }
 }
 

@@ -57,11 +57,11 @@ export const loadWishListPage = async (req, res) => {
       .populate(`products.productId`)
       .exec();
     if (!wishList || wishList?.products?.length === 0)  {
-      return res.status(400).json({ message: `You don't have any Wish list` });
+      return res.status(400).json({success:false, message: `You don't have any Wish list` });
     }
-    res.status(200).json(wishList.products);
+    res.status(200).json({success:true,message:"WishList Fetched Successfully",data:wishList.products});
   } catch (error) {
-    res .status(500).json({ message: `internal server error - ${error.message}` });
+    res .status(500).json({success:false, message: `internal server error - ${error.message}` });
   }
 };
 
@@ -75,9 +75,9 @@ export const removeFromWishList = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json(`Product removed from wishList`);
+    res.status(200).json({success:true,message:`Product removed from wishList`});
   } catch (error) {
-    res.status(500).json({ message: `internal server error - ${error.message}` });
+    res.status(500).json({success:false, message: `internal server error - ${error.message}` });
   }
 };
 

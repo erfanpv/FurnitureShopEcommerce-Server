@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   orderDetails: [{
+      orderId: {
+        type:String
+      },
       products: [
         {
           productId: {
@@ -33,7 +36,7 @@ const orderSchema = new mongoose.Schema({
       payment_method: {
         type: String,
         enum: ["razorpay","stripe","phonpe"],
-        required: true,
+        default:"stripe"
       },
       createdAt: {
         type: Date,
@@ -57,7 +60,6 @@ const orderSchema = new mongoose.Schema({
       address: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "address",
-        required:true
       },
       isCancelled: {
         type: Boolean,

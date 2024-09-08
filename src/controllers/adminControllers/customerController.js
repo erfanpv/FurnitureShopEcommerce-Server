@@ -27,7 +27,7 @@ export const getUserById = async (req, res) => {
       return res.status(404).json({ message: "Users not found" });
     } 
     
-    res.status(200).json({success: true,message: "Users fetched successfully",data: user,});
+    res.status(200).json({success: true,message: "User fetched successfully",data: user,});
   } catch (error) {
     res.status(500).json({ success: false, message: `Bad request: ${error.message}` });
   }
