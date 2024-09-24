@@ -23,8 +23,8 @@ userRouter.get("/products/categorylist/unique", getUniqueProductCategories);
 
 userRouter.get("/search/products",searchProducts)
 
+userRouter.get("/:id/wishlist",checkAuth,loadWishListPage);
 userRouter.post("/:id/wishlist",checkAuth,toggleWishListItem);
-userRouter.get("/:id/wishlist",checkAuth,checkAuth,loadWishListPage);
 userRouter.delete("/:id/wishlist",checkAuth,removeFromWishList);
 
 userRouter.get("/:id/cart",checkAuth,loadCart);
