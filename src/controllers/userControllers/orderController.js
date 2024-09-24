@@ -13,16 +13,17 @@ export const getOrdersByUser = async (req, res) => {
         model: 'products',
         select: 'productName price category image', 
       }).exec();
-    
-    if (!orders.length) {
-      return res.status(404).json({ success: false, message: "No orders found for this user" });
+
+    if (!orders || orders.length === 0) {
+      return res.status(200).json({ success: true, message: "No orders found for this user.", data: [] });
     }
 
-    res.status(200).json({ success: true, message: "Orders Fetched", data: orders });
+    res.status(200).json({ success: true, message: "Orders fetched successfully.", data: orders });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error fetching orders", error: error.message });
   }
 };
+
 
 
 
@@ -70,8 +71,7 @@ export const createOrder = async (req, res) => {
     res.status(500).json({success:false, message: `Error creating order - ${error.message}` });
   }
 };
-
-
+ 
 export const createOrderbyCart = async (req, res) => {
   try {
     const { payment_method, cartId,userId} = req.body;
