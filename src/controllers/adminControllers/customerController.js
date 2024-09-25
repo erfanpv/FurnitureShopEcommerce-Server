@@ -38,7 +38,7 @@ export const adminBlockUser = async (req, res) => {
   try {
     const userId = req.params.id;
     await userDb.findByIdAndUpdate(userId, {is_blocked: true });
-    return res.status(200).json({ success: true ,message: "User blocked success"});
+    return res.status(201).json({ success: true ,message: "User blocked success"});
   } catch (error) {
     res.status(500).send({success:false,message:`Internal Server Error ,${error.message}`});
   }
@@ -49,8 +49,57 @@ export const adminUnBlockUser = async (req, res) => {
     const userId = req.params.id;
     await userDb.findByIdAndUpdate(userId, {is_blocked: false });
     return res.status(200).json({ success: true ,message: "User unblocked success"});
-  } catch (err) {
+  } catch (error) {
     res.status(500).send({success:false,message:`Internal Server Error ,${error.message}`});
   }
 };
+
+export const toggleUserBlockStatus = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await userDb.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const newStatus = !user.is_blocked;
+    await userDb.findByIdAndUpdate(userId, { is_blocked: newStatus });
+
+    const message = newStatus ? "User blocked successfully" : "User unblocked successfully";
+
+    return res.status(200).json({ success: true, message });
+  } catch (error) {
+    res.status(500).send({ success: false, message: `Internal Server Error: ${error.message}` });
+  }
+};
+
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { searchQuery } = req.query;
+
+    const results = await userDb.find({
+      role: "user", 
+      $or: [
+        { firstName: { $regex: searchQuery, $options: "i" } },
+        { lastName: { $regex: searchQuery, $options: "i" } },
+        { email: { $regex: searchQuery, $options: "i" } },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Search Success",
+      data: results,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Error searching Users - ${error.message}`,
+    });
+  }
+};
+
 
