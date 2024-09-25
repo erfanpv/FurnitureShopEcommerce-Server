@@ -31,8 +31,11 @@ export const getProductWithId = async (req, res) => {
 export const getproductWithCategory = async (req,res) => {
   try {
     const categoryName = req.params.categoryname;
-    const productsWithCategory = await productDb.find({ category:categoryName});
-
+    const productsWithCategory = await productDb.find({
+      category: categoryName,
+      is_Listed: { $ne: false }
+    });
+    
     if (productsWithCategory.length === 0) {
       return res.status(404).json({success:false, message: "Categories not found" });
     }
