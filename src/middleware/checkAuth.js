@@ -5,7 +5,7 @@ dotenv.config();
 
 const checkAuth = (req, res, next) => {
   try {
-    const token = req.headers.authorization;
+    const token = req.headers.authorization;        
 
     if (!token) {
       return res.status(401).json({success:false,message: "Access denied" });
@@ -16,9 +16,10 @@ const checkAuth = (req, res, next) => {
     if (!tokenValid) {
       return res.status(500).json({success:false, message: "Token not valid" });
     }
+
     next();
   } catch (error) {
-    res.status(401).json({success:false, message: `Internal Server Error ${error.message}` });
+    res.status(400).json({success:false, message: `Internal Server Error ${error.message}` });
   }
 };
 
