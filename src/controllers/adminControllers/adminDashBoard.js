@@ -16,13 +16,11 @@ export const getTotalSalesAmount = async (req, res) => {
 
     const salesAmount = totalSales.length > 0 ? totalSales[0].totalSales : 0;
 
-    res.status(200).json({success: true,message: "Total sales amount calculated successfully.",totalSales: salesAmount });
+    res.status(200).json({success: true,message: "Total sales amount calculated successfully.",totalSalesAmount: salesAmount });
   } catch (error) {
     res.status(500).json({success: false,message: `Error calculating total sales: ${error.message}`});
   }
 };
-
-
 
 export const getTotalSalesCount = async (req, res) => {
   try {
