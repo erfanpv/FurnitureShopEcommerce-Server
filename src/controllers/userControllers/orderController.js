@@ -1,26 +1,25 @@
 import mongoose from "mongoose";
 import orderDb from "../../models/schemas/orderSchema.js";
-import addressDb from "../../models/schemas/addressSchema.js";
 import productDb from "../../models/schemas/productSchema.js";
 import cartDb from "../../models/schemas/cartSchema.js";
 
 export const getOrdersByUser = async (req, res) => {
-  try {   
+  try {
     const userId = req.params.id;
-    const orders = await orderDb.find({ userId })
-      .populate({
-        path: 'orderDetails.products.productId', 
-        model: 'products',
-        select: 'productName price category image', 
-      }).exec();
 
-    if (!orders || orders.length === 0) {
-      return res.status(200).json({ success: true, message: "No orders found for this user.", data: [] });
+    const orderByUser = await orderDb.findOne({ userId }).populate({
+      path: 'orderDetails.products.productId',
+      model: 'products',
+      select: 'productName price category image',
+    }).exec();
+
+    if (!orderByUser || !orderByUser.orderDetails.length) {
+      return res.status(200).json({ success: true, message: "No orders found for this user", data: [] });
     }
 
-    res.status(200).json({ success: true, message: "Orders fetched successfully.", data: orders });
+    res.status(200).json({ success: true, message: "Orders fetched successfully", data: orderByUser });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching orders", error: error.message });
+    res.status(500).json({ success: false, message: `Internal server error: ${error.message}` });
   }
 };
 
