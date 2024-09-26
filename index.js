@@ -18,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/users", userRouter);
 app.use("/api/admin", adminRouter);
+
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "This route is not available." });
 });
