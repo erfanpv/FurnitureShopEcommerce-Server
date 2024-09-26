@@ -2,9 +2,13 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  orderDetails: [{
+  orderDetails: [
+    {
       orderId: {
-        type:String
+        type: String,
+      },
+      paymentId: {
+        type: String,
       },
       products: [
         {
@@ -35,8 +39,14 @@ const orderSchema = new mongoose.Schema({
       },
       payment_method: {
         type: String,
-        enum: ["razorpay","stripe","phonpe"],
-        default:"stripe"
+        enum: ["razorpay", "stripe", "phonpe"],
+        default: "stripe",
+      },
+      orderUsermail: {
+        type: String,
+      },
+      orderedUserName: {
+        type: String,
       },
       createdAt: {
         type: Date,
@@ -57,19 +67,19 @@ const orderSchema = new mongoose.Schema({
       refundedAt: {
         type: Date,
       },
-      address: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "address",
+      shippingAddress: {
+        type: Object,
       },
       isCancelled: {
         type: Boolean,
         default: false,
       },
-    
+
       reason: {
         type: String,
       },
-    }]
+    },
+  ],
 });
 
 const orderDb = mongoose.model("orders", orderSchema);
