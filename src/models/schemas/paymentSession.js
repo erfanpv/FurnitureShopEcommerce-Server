@@ -1,33 +1,22 @@
 import mongoose from 'mongoose';
 
-const PaymentSessionSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
-  },
+
+const paymentSessionSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
   paymentData: [
     {
-      sessionId: {
-        type: String,
-        required: true
-      },
-      paymentProductData: {
-        type: mongoose.Schema.Types.Mixed, 
-        required: true
-      },
-      totalAmount: {
-        type: Number,
-        required: true
-      }
-    }
+      sessionId: { type: String, required: true, unique: true },
+      paymentProductData: { type: Map, of: String },
+      totalAmount: { type: Number },
+    },
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
 });
 
-const PaymentSession = mongoose.model('PaymentSession', PaymentSessionSchema);
 
-export default PaymentSession;
+
+
+// Ensure that there is no unique constraint on sessionId
+
+const paymentSession = mongoose.model('paymentSession', paymentSessionSchema);
+
+export default paymentSession;
