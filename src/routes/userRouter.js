@@ -10,6 +10,7 @@ import handleController from "../utils/constant.js";
 import { stripeIntent, successPayment } from "../controllers/userControllers/stripeController.js";
 import { searchProducts } from "../controllers/userControllers/searchController.js";
 import { login, signUp } from "../controllers/authController/authController.js";
+import { sendMessage } from "../controllers/userControllers/contactController.js";
 
 const userRouter = express.Router();
 
@@ -42,6 +43,9 @@ userRouter.post("/cart/orders",checkAuth, createOrderbyCart);
 userRouter.post("/:id/address",checkAuth,addAddress)
 userRouter.get("/:id/address",checkAuth,getAddress)
 userRouter.put("/:id/address",checkAuth,updateAddress)
+
+userRouter.post("/:id/contact",checkAuth,sendMessage)
+
 
 
 export default userRouter;
