@@ -5,7 +5,7 @@ import { addProduct, adminGetAllProducts, adminGetProductWithId, deleteProduct, 
 import { getAllOrders, getOrdersByUser } from "../controllers/adminControllers/adminOrderControllers.js";
 import { dashboardManager } from "../middleware/handleDashboard.js";
 import handleController from "../utils/constant.js";
-import { getAllUserMessages } from "../controllers/adminControllers/contactController.js";
+import { getAllUserMessages, getTotalPendingMessageCount, messageStatusUpdate } from "../controllers/adminControllers/contactController.js";
 
 const adminRouter = express.Router();
 
@@ -30,5 +30,8 @@ adminRouter.get("/dashboard",checkAuth,dashboardManager,handleController)
 
 
 adminRouter.get("/all-contact",checkAuth,getAllUserMessages)
+adminRouter.get("/pending-contact-count",checkAuth,getTotalPendingMessageCount)
+
+adminRouter.put("/messages/update-status/:messageId",checkAuth,messageStatusUpdate)
 
 export default adminRouter
