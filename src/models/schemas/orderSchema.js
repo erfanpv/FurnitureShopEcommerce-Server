@@ -13,11 +13,13 @@ const orderSchema = new mongoose.Schema({
       products: [
         {
           productId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "products",
-            required: true,
+            productName: { type: String },
+            description: { type: String },
+            price: { type: Number },
+            image: { type: String },
+            category: { type: String },
           },
-          quantity: { type: Number, default: 1 },
+          quantity: { type: Number },
         },
       ],
       total: {
