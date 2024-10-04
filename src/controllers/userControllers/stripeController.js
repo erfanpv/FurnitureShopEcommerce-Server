@@ -14,7 +14,6 @@ export const stripeIntent = async (req, res) => {
   try {
     const userId = req.params.id;
     const { cartId } = req.body;
-    
 
     let productDetails;
     let totalAmount = 0;
@@ -59,8 +58,7 @@ export const stripeIntent = async (req, res) => {
           })
         )
       ).filter((item) => item !== null);
-    } 
-  
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -73,18 +71,28 @@ export const stripeIntent = async (req, res) => {
       cancel_url: "http://localhost:5173/products/cart/mycart",
     });
 
-    
     paymentData = {
       sessionId: session.id,
       cartId: cartId,
       totalAmount,
-    }
-    
+    };
 
     if (!session) {
-      return res.status(500).json({success: false,message: "Error occurred while creating session" })}
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Error occurred while creating session",
+        });
+    }
 
-    res.status(200).json({success: true,message: "Stripe payment session created successfully",url: session.url,});
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Stripe payment session created successfully",
+        url: session.url,
+      });
   } catch (error) {
     console.log(error);
 
@@ -97,7 +105,7 @@ export const stripeIntent = async (req, res) => {
 export const successPayment = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId)
+
     const [session, lineItems] = await Promise.all([
       stripe.checkout.sessions.retrieve(req.query.session_id, {
         expand: ["payment_intent.payment_method"],
@@ -105,29 +113,25 @@ export const successPayment = async (req, res) => {
       stripe.checkout.sessions.listLineItems(req.query.session_id),
     ]);
 
-    console.log(session);
-
 
     let cartId;
     let totalAmount = 0;
-    let products;
-    console.log(paymentData);
 
     if (paymentData) {
-   
       totalAmount = paymentData?.totalAmount;
       cartId = paymentData?.cartId;
-
     }
 
-
     if (cartId) {
-      
-      let cart = await cartDb.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(cartId) } },
-      ]);
+      const cart = await cartDb.findOne({ userId }).populate({
+        path:'products.productId', 
+        model: 'products',
+        select: 'productName price category image description'
+      }).exec();
 
-      const cartProducts = await cart[0].products;
+      const cartProducts =  cart.products
+    
+
 
       let orderData = await orderDb.findOne({ userId });
 
@@ -152,9 +156,10 @@ export const successPayment = async (req, res) => {
       await orderData.save();
 
       await cartDb.deleteOne({ _id: new mongoose.Types.ObjectId(cartId) });
-    } 
-    
-    res.redirect("http://localhost:5173/payment/success/payment")
+
+      await res.redirect("http://localhost:5173/payment/success/payment");
+
+    }
 
   } catch (error) {
     res.status(500).json({
