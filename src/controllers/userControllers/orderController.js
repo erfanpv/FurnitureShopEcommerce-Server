@@ -7,11 +7,7 @@ export const getOrdersByUser = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    const orderByUser = await orderDb.findOne({ userId }).populate({
-      path: 'orderDetails.products.productId',
-      model: 'products',
-      select: 'productName price category image',
-    }).exec();
+    const orderByUser = await orderDb.findOne({ userId })
 
     if (!orderByUser || !orderByUser.orderDetails.length) {
       return res.status(200).json({ success: true, message: "No orders found for this user", data: [] });
