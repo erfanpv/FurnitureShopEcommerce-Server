@@ -32,7 +32,6 @@ adminRouter.get("/dashboard",checkAuth,dashboardManager,handleController)
 
 adminRouter.get("/all-contact",checkAuth,getAllUserMessages)
 adminRouter.get("/pending-contact-count",checkAuth,getTotalPendingMessageCount)
-
 adminRouter.put("/messages/update-status/:messageId",checkAuth,messageStatusUpdate)
 
 export default adminRouter
