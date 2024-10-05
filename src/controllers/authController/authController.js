@@ -1,6 +1,7 @@
 import userDb from "../../models/schemas/userSchema.js";
 import { comparePassword,hashPassword } from "../../utils/bcrypt.js";
 import { generateToken } from "../../utils/token.js";
+import { logActivity } from "../baseControllers/logActivity.js";
 
 
 export const signUp = async (req, res) => {
@@ -35,7 +36,9 @@ export const signUp = async (req, res) => {
       password: hashedPassword,
       role: role ||"user"
     });
+
     await user.save();
+    await logActivity(`User ${user.firstName + " " + user.lastName} registered`);
     return res.status(200).json({success:true, message: "Success", data:user});
   } catch (error) {
     return res.status(400).json({success:false, message: `Bad request:  ${error.message}` });

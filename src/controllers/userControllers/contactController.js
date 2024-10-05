@@ -30,7 +30,6 @@ export const sendMessage = async (req, res) => {
     }
 
     await contactData.save();
-
     res.status(200).json({success:true, message: "Message sent successfully" });
   } catch (error) {
     res.status(500).json({success:false, message: ` Message Send not success - ${error.message}` });

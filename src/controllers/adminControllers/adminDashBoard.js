@@ -1,6 +1,7 @@
 import orderDb from "../../models/schemas/orderSchema.js";
 import productDb from "../../models/schemas/productSchema.js";
 import userDb from "../../models/schemas/userSchema.js";
+import activityDb from "../../models/schemas/activitySchema.js";
 
 export const getTotalSalesAmount = async (req, res) => {
   try {
@@ -69,5 +70,52 @@ export const getTotalStocksCount = async (req, res) => {
    res.status(200).json({ success: true, message: "Total Stock count calculated successfully.",  totalStockCount});
   } catch (error) {
     res.status(500).json({success: false,message: `Error calculating total Stock count: ${error.message}` });
+  }
+};
+
+
+export const getRecentOrders = async (req, res) => {
+  try {
+    const recentOrdersAggregation = await orderDb.aggregate([
+      { $unwind: "$orderDetails" }, 
+      { $sort: { "orderDetails.createdAt": -1 }},
+      {
+        $facet: {
+          orders: [{ $limit: 3 }] 
+        }
+      }
+    ]);
+
+    const recentOrders = recentOrdersAggregation[0].orders;
+
+    if (!recentOrders || recentOrders.length === 0) {
+      return res.status(404).json({ success: false, message: "No orders found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Recent orders fetched successfully",
+      data: recentOrders,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: `Server error: ${error.message}` });
+  }
+};
+
+
+export const getRecentActivities = async (req, res) => {
+  try {
+    const recentActivities = await activityDb.find()
+      .sort({ date: -1 }) 
+      .limit(4) 
+      .select('action date -_id');
+
+    if (!recentActivities || recentActivities.length === 0) {
+      return res.status(404).json({ success: false, message: 'No activities found.' });
+    }
+
+    res.status(200).json({success: true,message: 'Recent activities fetched successfully',data: recentActivities});
+  } catch (error) {
+    res.status(500).json({ success: false, message: `Server error: ${error.message}` });
   }
 };

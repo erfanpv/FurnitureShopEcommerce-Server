@@ -154,7 +154,7 @@ export const successPayment = async (req, res) => {
       }
 
       await orderData.save();
-
+      
       await cartDb.deleteOne({ _id: new mongoose.Types.ObjectId(cartId) });
 
       await res.redirect("http://localhost:5173/payment/success/payment");
@@ -162,10 +162,7 @@ export const successPayment = async (req, res) => {
     }
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: `Failed to retrieve payment details - ${error.message}`,
-    });
+    res.status(500).json({success: false,message: `Failed to retrieve payment details - ${error.message}`});
   }
 };
 

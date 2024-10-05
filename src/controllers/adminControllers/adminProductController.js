@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import lodash from "lodash";
 import productDb from "../../models/schemas/productSchema.js";
 import productValidation from "../../models/joiValidations/productValidation.js";
+import { logActivity } from "../baseControllers/logActivity.js";
 
 export const adminGetAllProducts = async (req, res) => {
   try {
@@ -53,9 +54,7 @@ export const adminGetProductWithId = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Product not found" });
     }
-    res
-      .status(200)
-      .json({ success: true, message: "Product Fetched", data: productById });
+    res.status(200).json({ success: true, message: "Product Fetched", data: productById });
   } catch (error) {
     res
       .status(500)
@@ -76,12 +75,7 @@ export const addProduct = async (req, res) => {
     const existProducts = await productDb.findOne({ productName });
 
     if (existProducts) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: `Product already existed ${productName}`,
-        });
+      return res.status(401).json({ success: false,message: `Product already existed ${productName}`});
     }
 
     if (
@@ -89,18 +83,15 @@ export const addProduct = async (req, res) => {
       category.trim().length === 0 ||
       description.trim().length === 0
     ) {
-      return res
-        .status(401)
-        .json({ success: false, message: `Spaces only not accepted` });
+      return res.status(401).json({ success: false, message: `Spaces only not accepted` });
     }
 
     const newProduct = new productDb(validatedProduct);
 
     await newProduct.save();
+    await logActivity(`New Product ${newProduct.productName} Added`);
 
-    res
-      .status(200)
-      .json({ success: true, message: `Product added`, newProduct });
+    res.status(200).json({ success: true, message: `Product added`, newProduct });
   } catch (error) {
     res
       .status(400)
@@ -133,40 +124,18 @@ export const updateProduct = async (req, res) => {
     });
 
     if (isDataSame) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "No changes were made as the product details are the same.",
-        });
+      return res.status(400).json({ success: false,message: "No changes were made as the product details are the same."});
     }
 
-    const updatedProduct = await productDb.findByIdAndUpdate(
-      productId,
-      req.body,
-      { new: true }
-    );
-
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Product updated successfully",
-        data: updatedProduct,
-      });
+    const updatedProduct = await productDb.findByIdAndUpdate(productId, req.body,{ new: true });
+    await logActivity(`Product ${updatedProduct.productName} Updated`);
+    res.status(200).json({success: true,message: "Product updated successfully", data: updatedProduct  });
   } catch (error) {
     if (error.isJoi === true) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: `Validation error: ${error.message}`,
-        });
+      return res.status(400).json({success: false,message: `Validation error: ${error.message}`});
     }
 
-    res
-      .status(500)
-      .json({ success: false, message: `Bad request: ${error.message}` });
+    res.status(500).json({ success: false, message: `Bad request: ${error.message}` });
   }
 };
 
@@ -183,21 +152,12 @@ export const deleteProduct = async (req, res) => {
     const deleteProduct = await productDb.findByIdAndDelete(productId);
 
     if (!deleteProduct) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Product not found" });
+      return res.status(400).json({ success: false, message: "Product not found" });
     }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Product deleted successfully",
-        data: deleteProduct,
-      });
+    await logActivity(`Product ${deleteProduct.productName} Deleted`);
+    res.status(200).json({success: true,message: "Product deleted successfully",data: deleteProduct});
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: `Bad request:${error.message}` });
+    res.status(500).json({ success: false, message: `Bad request:${error.message}` });
   }
 };
 
@@ -206,23 +166,12 @@ export const getUniqueProductCategories = async (req, res) => {
     const uniqueCategories = await productDb.distinct("category");
 
     if (uniqueCategories.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No categories found" });
+      return res.status(404).json({ success: false, message: "No categories found" });
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Unique categories fetched successfully",
-      data: uniqueCategories,
-    });
+    return res.status(200).json({ success: true,message: "Unique categories fetched successfully",data: uniqueCategories });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: `Error fetching unique categories - ${error.message}`,
-      });
+    return res.status(500).json({success: false,message: `Error fetching unique categories - ${error.message}`});
   }
 };
 

@@ -1,52 +1,5 @@
 import orderDb from "../../models/schemas/orderSchema.js";
-
-
-export const getAllOrders = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;  
-    const limit = parseInt(req.query.limit) || 10; 
-    const skip = (page - 1) * limit;
-
-    const ordersAggregation = await orderDb.aggregate([
-      { $unwind: "$orderDetails" },
-      {
-        $facet: {
-          totalOrders: [{ $count: "count" }], 
-          orders: [
-            { $skip: skip },
-            { $limit: limit } 
-          ]
-        }
-      }
-    ]);
-
-    const totalOrders = ordersAggregation[0].totalOrders[0]?.count || 0; 
-    const orders = ordersAggregation[0].orders;
-
-    if (!orders || orders.length === 0) {
-      return res.status(404).json({ success: false, message: "No orders found" });
-    }
-
-    const totalPages = Math.ceil(totalOrders / limit);
-    const hasNextPage = page < totalPages;
-    const hasPreviousPage = page > 1;
-
-    res.status(200).json({
-      success: true,
-      message: "Orders fetched successfully",
-      data: orders,
-      pagination: {
-        totalOrders,   
-        currentPage: page,
-        totalPages,
-        hasNextPage,  
-        hasPreviousPage 
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: `Server error: ${error.message}` });
-  }
-};
+import { logActivity } from "../baseControllers/logActivity.js";
 
 
 export const getOrdersByUser = async (req, res) => {
@@ -65,7 +18,6 @@ export const getOrdersByUser = async (req, res) => {
     res.status(500).json({ success: false, message: `Internal server error: ${error.message}` });
   }
 };
-
 
 
 export const updateOrderStatus = async (req, res) => {
@@ -111,10 +63,9 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    return res.status(200).json({
-      message: "Order status updated successfully",
-      updatedOrder,
-    });
+    await logActivity(`Order ${orderId} ${status}`);
+
+    return res.status(200).json({message: "Order status updated successfully",updatedOrder,});
   } catch (error) {
     return res.status(500).json({
       error: "Something went wrong",
@@ -122,3 +73,69 @@ export const updateOrderStatus = async (req, res) => {
     });
   }
 };
+
+
+export const getAllOrders = async (req, res) => {
+  const { status } = req.query; 
+  const page = parseInt(req.query.page) || 1; 
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  try {
+    const validStatuses = [
+      "Placed",
+      "Processing",
+      "Shipped",
+      "Delivered",
+      "Cancelled",
+      "Returned",
+      "Refunded",
+    ];
+
+    let matchCondition = {};
+    if (status && validStatuses.includes(status)) {
+      matchCondition = { "orderDetails.status": status };
+    }
+
+    const ordersAggregation = await orderDb.aggregate([
+      { $unwind: "$orderDetails" }, 
+      { $match: matchCondition },
+      {
+        $facet: {
+          totalOrders: [{ $count: "count" }], 
+          orders: [
+            { $skip: skip },
+            { $limit: limit }
+          ]
+        }
+      }
+    ]);
+
+    const totalOrders = ordersAggregation[0].totalOrders[0]?.count || 0; 
+    const orders = ordersAggregation[0].orders;
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ success: false, message: "No orders found" });
+    }
+
+    const totalPages = Math.ceil(totalOrders / limit); 
+    const hasNextPage = page < totalPages; 
+    const hasPreviousPage = page > 1; 
+
+    res.status(200).json({
+      success: true,
+      message: "Orders fetched successfully",
+      data: orders,
+      pagination: {
+        totalOrders,  
+        currentPage: page, 
+        totalPages, 
+        hasNextPage, 
+        hasPreviousPage 
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error.", error });
+  }
+};
+
+

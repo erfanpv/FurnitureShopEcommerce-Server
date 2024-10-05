@@ -1,4 +1,5 @@
 import contactDb from "../../models/schemas/contactSchema.js";
+import { logActivity } from "../baseControllers/logActivity.js";
 
 export const getAllUserMessages = async (req, res) => {
   try {
@@ -63,6 +64,7 @@ export const messageStatusUpdate = async (req, res) => {
       return res.status(404).json({ message: "Message not found" });
     }
 
+    await logActivity(`One Message status ${newStatus}`);
     res.status(200).json({ message: "Status updated successfully", data: updatedDocument});
 
   } catch (error) {

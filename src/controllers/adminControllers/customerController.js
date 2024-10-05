@@ -1,4 +1,5 @@
 import userDb from "../../models/schemas/userSchema.js";
+import { logActivity } from "../baseControllers/logActivity.js";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -68,6 +69,11 @@ export const toggleUserBlockStatus = async (req, res) => {
     await userDb.findByIdAndUpdate(userId, { is_blocked: newStatus });
 
     const message = newStatus ? "User blocked successfully" : "User unblocked successfully";
+
+    newStatus 
+    ?  await logActivity(`User ${user.firstName + " " + user.lastName} Blocked`) 
+    :  await logActivity(`User ${user.firstName + " " + user.lastName} Unblocked`)
+
 
     return res.status(200).json({ success: true, message });
   } catch (error) {
