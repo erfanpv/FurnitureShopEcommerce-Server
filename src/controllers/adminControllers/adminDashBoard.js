@@ -119,3 +119,69 @@ export const getRecentActivities = async (req, res) => {
     res.status(500).json({ success: false, message: `Server error: ${error.message}` });
   }
 };
+
+
+export const getSalesDataForChart =  async (req,res) => {
+  const year = parseInt(req.query.year);
+
+  try {
+    const salesData = await orderDb.aggregate([
+      {
+        $match: {
+          "orderDetails.createdAt": {
+            $gte: new Date(`${year}-01-01`),
+            $lt: new Date(`${year + 1}-01-01`),
+          },
+        },
+      },
+      { $unwind: "$orderDetails" },
+      {
+        $group: {
+          _id: { month: { $month: "$orderDetails.createdAt" } },
+          totalSales: { $sum: "$orderDetails.total" },
+        },
+      },
+      { $sort: { "_id.month": 1 } },
+    ]);
+
+    const formattedSalesData = salesData.map((data) => {
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return {
+        name: monthNames[data._id.month - 1], 
+        sales: data.totalSales,
+        year: year,
+      };
+    });
+    res.json(formattedSalesData);
+  } catch (error) {
+    console.error("Error fetching sales data:", error);
+    res.status(500).json({ message: "Error retrieving sales data" });
+  }
+}
+
+export const getRevenueDataForGraph = async (req, res) => {
+  try {
+    const revenueData = await orderDb.aggregate([
+      { $unwind: "$orderDetails" }, 
+      {
+        $group: {
+          _id: { $dayOfWeek: "$orderDetails.createdAt" }, 
+          totalRevenue: { $sum: "$orderDetails.total" }, 
+        },
+      },
+      { $sort: { "_id": 1 } }, 
+    ]);
+
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const formattedRevenueData = revenueData.map((data) => ({
+      name: daysOfWeek[data._id - 1], 
+      revenue: data.totalRevenue,
+    }));
+
+    res.json(formattedRevenueData);
+  } catch (error) {
+    console.error("Error fetching revenue data:", error);
+    res.status(500).json({ message: "Error retrieving revenue data" });
+  }
+};
