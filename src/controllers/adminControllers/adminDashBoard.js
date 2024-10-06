@@ -3,6 +3,7 @@ import productDb from "../../models/schemas/productSchema.js";
 import userDb from "../../models/schemas/userSchema.js";
 import activityDb from "../../models/schemas/activitySchema.js";
 
+
 export const getTotalSalesAmount = async (req, res) => {
   try {
     const totalSales = await orderDb.aggregate([
@@ -185,3 +186,8 @@ export const getRevenueDataForGraph = async (req, res) => {
     res.status(500).json({ message: "Error retrieving revenue data" });
   }
 };
+
+
+
+
+

@@ -6,6 +6,7 @@ import { getAllOrders, getOrdersByUser, updateOrderStatus } from "../controllers
 import { dashboardManager } from "../middleware/handleDashboard.js";
 import handleController from "../utils/constant.js";
 import { getAllUserMessages, getTotalPendingMessageCount, messageStatusUpdate } from "../controllers/adminControllers/contactController.js";
+import { createReports } from "../controllers/adminControllers/reportController.js";
 
 const adminRouter = express.Router();
 
@@ -28,6 +29,7 @@ adminRouter.get("/orders/:id",checkAuth,getOrdersByUser)
 adminRouter.put("/orders/:id/status",checkAuth,updateOrderStatus)
 
 adminRouter.get("/dashboard",checkAuth,dashboardManager,handleController)
+adminRouter.post("/dashboard/create-report",checkAuth,createReports)
 
 
 adminRouter.get("/all-contact",checkAuth,getAllUserMessages)

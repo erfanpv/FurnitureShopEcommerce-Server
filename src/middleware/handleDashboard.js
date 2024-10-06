@@ -1,4 +1,4 @@
-import { getRecentActivities, getRecentOrders, getRevenueDataForGraph, getSalesDataForChart, getTotalProductsCount, getTotalSalesAmount, getTotalSalesCount, getTotalStocksCount, getTotalUsersCount } from "../controllers/adminControllers/adminDashBoard.js";
+import {  getRecentActivities, getRecentOrders, getRevenueDataForGraph, getSalesDataForChart, getTotalProductsCount, getTotalSalesAmount, getTotalSalesCount, getTotalStocksCount, getTotalUsersCount } from "../controllers/adminControllers/adminDashBoard.js";
 
 export const dashboardManager = (req, res, next) => {
   try {

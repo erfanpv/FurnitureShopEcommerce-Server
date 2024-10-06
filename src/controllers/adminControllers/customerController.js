@@ -2,22 +2,40 @@ import userDb from "../../models/schemas/userSchema.js";
 import { logActivity } from "../baseControllers/logActivity.js";
 
 export const getAllUsers = async (req, res) => {
+  const page = parseInt(req.query.page) || 1; 
+  const limit = parseInt(req.query.limit) || 10; 
+
   try {
-    const users = await userDb.find({ role: { $ne: "admin" } });
-    
+    const skip = (page - 1) * limit;
+
+    const users = await userDb.find({ role: { $ne: "admin" } })
+      .skip(skip) 
+      .limit(limit);
+
+    const totalUsers = await userDb.countDocuments({ role: { $ne: "admin" } });
+
     if (!users || users.length === 0) {
       return res.status(404).json({ message: "Users not found" });
-    } 
-    
+    }
+
+    const totalPages = Math.ceil(totalUsers / limit);
+
     res.status(200).json({
       success: true,
       message: "Users fetched successfully",
       data: users,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalUsers: totalUsers,
+        limit: limit,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: `Bad request: ${error.message}` });
   }
 };
+
 
 export const getUserById = async (req, res) => {
   try {
