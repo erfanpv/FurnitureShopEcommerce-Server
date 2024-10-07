@@ -63,12 +63,11 @@ export const login = async (req, res) => {
   
     const token = generateToken(user._id);
 
-     // Set token in an HttpOnly cookie
      res.cookie('token', token, {
-      httpOnly: true, // Prevents access via JavaScript
-      secure: process.env.NODE_ENV === 'production', // Ensures cookie is sent over HTTPS in production
-      sameSite: 'Strict', // Protects against CSRF attacks
-      maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration time (7 days in this example)
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     
     if (user?.role === "admin") {

@@ -11,6 +11,7 @@ import { stripeIntent, successPayment } from "../controllers/userControllers/str
 import { searchProducts } from "../controllers/userControllers/searchController.js";
 import { login, signUp } from "../controllers/authController/authController.js";
 import { sendMessage } from "../controllers/userControllers/contactController.js";
+import { createOrUpdateWallet, createWalletTransaction, getWalletData } from "../controllers/userControllers/walletController.js";
 
 const userRouter = express.Router();
 
@@ -38,6 +39,11 @@ userRouter.get("/payment/success/:id",successPayment)
 userRouter.get("/orders/:id",checkAuth, getOrdersByUser);
 userRouter.post("/orders",checkAuth, createOrder);
 userRouter.post("/cart/orders",checkAuth, createOrderbyCart);
+
+
+userRouter.post("/wallet",checkAuth, createOrUpdateWallet);
+userRouter.post("/wallet/transaction",checkAuth, createWalletTransaction);
+userRouter.get("/wallet/:id",checkAuth, getWalletData);
 
 
 userRouter.post("/:id/address",checkAuth,addAddress)

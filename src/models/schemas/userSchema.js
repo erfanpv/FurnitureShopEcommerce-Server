@@ -57,6 +57,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "contactDatas",
     },
+    wallet: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "wallets",
+    },
   },
   {
     timestamps: true,
