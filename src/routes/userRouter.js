@@ -4,7 +4,7 @@ import { loadWishListPage, removeFromWishList, toggleWishListItem } from "../con
 import { loadCart, removeCart } from "../controllers/userControllers/cartController.js";
 import handleCartAction from "../middleware/handleCartAction.js";
 import checkAuth from "../middleware/checkAuth.js";
-import { createOrder,  createOrderbyCart,  getOrdersByUser } from "../controllers/userControllers/orderController.js";
+import { returnOrCancelOrder, createOrder,  createOrderbyCart,  getOrdersByUser } from "../controllers/userControllers/orderController.js";
 import { addAddress, getAddress, updateAddress } from "../controllers/userControllers/addressController.js";
 import handleController from "../utils/constant.js";
 import { stripeIntent, successPayment } from "../controllers/userControllers/stripeController.js";
@@ -37,6 +37,7 @@ userRouter.post("/payment/:id",checkAuth,stripeIntent)
 userRouter.get("/payment/success/:id",successPayment)
 
 userRouter.get("/orders/:id",checkAuth, getOrdersByUser);
+userRouter.post("/orders/cancel/:orderId",checkAuth, returnOrCancelOrder);
 userRouter.post("/orders",checkAuth, createOrder);
 userRouter.post("/cart/orders",checkAuth, createOrderbyCart);
 

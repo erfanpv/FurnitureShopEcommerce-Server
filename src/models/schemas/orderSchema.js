@@ -76,7 +76,10 @@ const orderSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
       },
-
+      isReturned: {
+        type: Boolean,
+        default: false,
+      },
       reason: {
         type: String,
       },

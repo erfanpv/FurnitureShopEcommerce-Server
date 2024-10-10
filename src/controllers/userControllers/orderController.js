@@ -19,9 +19,6 @@ export const getOrdersByUser = async (req, res) => {
   }
 };
 
-
-
-
 export const createOrder = async (req, res) => {
   try {
     const { products, address, payment_method,userId} = req.body;    
@@ -117,3 +114,50 @@ export const createOrderbyCart = async (req, res) => {
     res.status(500).json({success:false, message: `Error creating order - ${error.message}` });
   }
 };
+
+export const returnOrCancelOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params; 
+    const { reason,action } = req.body;
+
+    let order;
+    if (action === "return") {
+       order = await orderDb.findOneAndUpdate(
+        { "orderDetails.orderId": orderId },
+        {
+          $set: {
+            "orderDetails.$.isCancelled": true,
+            "orderDetails.$.isReturned": true,
+            "orderDetails.$.status": "Returned",
+            "orderDetails.$.reason": reason,
+          },
+        },
+        { new: true }
+      );
+    }else if (action === "cancel") {
+      order = await orderDb.findOneAndUpdate(
+        { "orderDetails.orderId": orderId },
+        {
+          $set: {
+            "orderDetails.$.isCancelled": true,
+            "orderDetails.$.status": "Cancelled",
+            "orderDetails.$.reason": reason,
+          },
+        },
+        { new: true }
+      );
+    }
+    
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    return res.status(200).json({ message: "Order cancelled successfully", order});
+  } catch (error) {
+    return res.status(500).json({  message: "Failed to cancel the order",error: error.message});
+  }
+};
+
+
+
