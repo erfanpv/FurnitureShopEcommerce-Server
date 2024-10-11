@@ -1,4 +1,6 @@
+import Stripe from "stripe";
 import orderDb from "../../models/schemas/orderSchema.js";
+import walletDb from "../../models/schemas/walletSchema.js"
 import { logActivity } from "../baseControllers/logActivity.js";
 
 export const getOrdersByUser = async (req, res) => {
@@ -55,8 +57,6 @@ export const updateOrderStatus = async (req, res) => {
           "orderDetails.$.processedAt": status === "Processing",
           "orderDetails.$.shippedAt": status === "Shipped",
           "orderDetails.$.deliveredAt": status === "Delivered",
-          "orderDetails.$.returnedAt": status === "Returned",
-          "orderDetails.$.refundedAt": status === "Refunded",
         },
       },
       { new: true }
@@ -143,12 +143,12 @@ export const getAllOrders = async (req, res) => {
 
 export const rejectReturnOrCancelOrders = async (req, res) => {
   try {
-    const { orderId } = req.params; 
+    const { orderId } = req.params;
     const { action } = req.body;
 
     let order;
     if (action === "return") {
-       order = await orderDb.findOneAndUpdate(
+      order = await orderDb.findOneAndUpdate(
         { "orderDetails.orderId": orderId },
         {
           $set: {
@@ -158,7 +158,7 @@ export const rejectReturnOrCancelOrders = async (req, res) => {
         },
         { new: true }
       );
-    }else if (action === "cancel") {
+    } else if (action === "cancel") {
       order = await orderDb.findOneAndUpdate(
         { "orderDetails.orderId": orderId },
         {
@@ -170,57 +170,154 @@ export const rejectReturnOrCancelOrders = async (req, res) => {
         { new: true }
       );
     }
-    
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    return res.status(200).json({ message: "Order cancelled successfully", order});
+    return res
+      .status(200)
+      .json({ message: "Order cancelled successfully", order });
   } catch (error) {
-    return res.status(500).json({  message: "Failed to cancel the order",error: error.message});
+    return res
+      .status(500)
+      .json({ message: "Failed to cancel the order", error: error.message });
   }
 };
 
-export const acceptReturnOrCancelOrder = async (req,res) => {
+export const acceptReturnOrCancelOrder = async (req, res) => {
   try {
-    const { orderId } = req.params; 
+    const { orderId } = req.params;
     const { action } = req.body;
 
-    console.log("erfan",orderId,action)
 
     let order;
     if (action === "return") {
-       order = await orderDb.findOneAndUpdate(
+      order = await orderDb.findOneAndUpdate(
         { "orderDetails.orderId": orderId },
         {
           $set: {
             "orderDetails.$.isCancelled": false,
             "orderDetails.$.status": "Returned",
+            "orderDetails.$.returnedAt":new Date(),
+
           },
         },
         { new: true }
       );
-    }else if (action === "cancel") {
+    } else if (action === "cancel") {
       order = await orderDb.findOneAndUpdate(
         { "orderDetails.orderId": orderId },
         {
           $set: {
             "orderDetails.$.isCancelled": false,
             "orderDetails.$.status": "Cancelled",
+            "orderDetails.$.cancelledAt":new Date(),
+
           },
         },
         { new: true }
       );
     }
-    
-    console.log(order)
+
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    return res.status(200).json({success:true, message: "Order cancelled successfully", order});
+    return res
+      .status(200)
+      .json({ success: true, message: "Order cancelled successfully", order });
   } catch (error) {
-    return res.status(500).json({  message: "Failed to cancel the order",error: error.message});
+    return res
+      .status(500).json({ message: "Failed to cancel the order", error: error.message });
   }
-}
+};
+
+const stripeInstance  = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+export const refundPayment = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { action } = req.body;
+
+
+    const order = await orderDb.findOne({ "orderDetails.orderId": orderId });
+    
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const paymentId = order.orderDetails.find(
+      (detail) => detail.orderId === orderId
+    ).paymentId; 
+    const refundAmount = order.orderDetails.find(
+      (detail) => detail.orderId === orderId
+    ).total;  
+    const paymentIntent = await stripeInstance.paymentIntents.retrieve(paymentId);
+    if (!paymentIntent) {
+      return res.status(404).json({
+        message: "No such payment_intent found for this order",
+      });
+    }
+
+    if (action === "refunded") {
+      const refund = await stripeInstance.refunds.create({
+        payment_intent: paymentId, 
+        amount: Math.round(refundAmount * 100),
+      });
+      if (refund.status !== 'succeeded') {
+        return res.status(500).json({message: "Failed to process refund with Stripe",});
+      }
+
+      await orderDb.findOneAndUpdate(
+        { "orderDetails.orderId": orderId },
+        {
+          $set: {
+            "orderDetails.$.isCancelled": false,
+            "orderDetails.$.status": "Refunded",
+            "orderDetails.$.refundedAt": new Date(),
+          },
+        },
+        { new: true }
+      );
+
+      const wallet = await walletDb.findOne({ userId: order.userId });
+
+      if (wallet) {
+        wallet.balance += refundAmount;
+        wallet.transactions.push({
+          orderId: order._id,
+          walletUpdate: "credited",
+          total: refundAmount,
+          date: new Date(),
+        });
+        await wallet.save();
+      } else {
+        const newWallet = new walletDb({
+          userId: order.userId,
+          balance: refundAmount,
+          transactions: [
+            {
+              orderId: order._id,
+              walletUpdate: "credited",
+              total: refundAmount,
+              date: new Date(),
+            },
+          ],
+        });
+        await newWallet.save();
+      }
+
+      return res.status(200).json({
+        message: "Order refunded successfully, amount credited to wallet",
+        order,
+        wallet,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to refund the order",
+      error: error.message,
+    });
+  }
+};
