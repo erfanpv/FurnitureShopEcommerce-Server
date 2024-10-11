@@ -2,7 +2,7 @@ import express from "express";
 import {  getAllUsers, getUserById, searchUsers, toggleUserBlockStatus } from "../controllers/adminControllers/customerController.js";
 import checkAuth from "../middleware/checkAuth.js";
 import { addProduct, adminGetAllProducts, adminGetProductWithId, deleteProduct, getUniqueProductCategories, searchProducts, updateProduct } from "../controllers/adminControllers/adminProductController.js";
-import { acceptReturnOrCancelOrder, getAllOrders, getOrdersByUser, rejectReturnOrCancelOrders, updateOrderStatus } from "../controllers/adminControllers/adminOrderControllers.js";
+import { acceptReturnOrCancelOrder, getAllOrders, getOrdersByUser, refundPayment, rejectReturnOrCancelOrders, updateOrderStatus } from "../controllers/adminControllers/adminOrderControllers.js";
 import { dashboardManager } from "../middleware/handleDashboard.js";
 import handleController from "../utils/constant.js";
 import { getAllUserMessages, getTotalPendingMessageCount, messageStatusUpdate } from "../controllers/adminControllers/contactController.js";
@@ -29,6 +29,7 @@ adminRouter.get("/orders/:id",checkAuth,getOrdersByUser)
 adminRouter.put("/orders/:id/status",checkAuth,updateOrderStatus)
 adminRouter.put("/orders/reject/:orderId",checkAuth,rejectReturnOrCancelOrders)
 adminRouter.put("/orders/allow/:orderId",checkAuth,acceptReturnOrCancelOrder)
+adminRouter.put("/orders/refund/:orderId",checkAuth,refundPayment)
 
 adminRouter.get("/dashboard",checkAuth,dashboardManager,handleController)
 adminRouter.post("/dashboard/create-report",checkAuth,createReports)

@@ -28,9 +28,7 @@ export const stripeIntent = async (req, res) => {
         !productDetails.length ||
         productDetails[0].userId.toString() !== userId
       ) {
-        return res
-          .status(400)
-          .json({ success: false, error: "Invalid cart or user" });
+        return res.status(400).json({ success: false, error: "Invalid cart or user" });
       }
 
       const cartProducts = productDetails[0].products;
@@ -40,7 +38,7 @@ export const stripeIntent = async (req, res) => {
           cartProducts.map(async (item) => {
             const product = await productDb.findById(item.productId);
             if (product) {
-              totalAmount += product.price * item.quantity;
+              totalAmount += product.price * 0.1  + product.price
               return {
                 price_data: {
                   currency: "inr",
@@ -49,7 +47,7 @@ export const stripeIntent = async (req, res) => {
                     description: product.description,
                     images: [product.image],
                   },
-                  unit_amount: Math.round(product.price * 100),
+                  unit_amount: Math.round(((product.price * 100)*0.1) +product.price * 100),
                 },
                 quantity: item.quantity,
               };
@@ -136,8 +134,8 @@ export const successPayment = async (req, res) => {
       let orderData = await orderDb.findOne({ userId });
 
       const orderDetails = {
-        orderId: session.id,
-        paymentId: userId + Date.now(),
+        orderId: userId + Date.now(),
+        paymentId: session.payment_intent.id,
         products: cartProducts,
         total: totalAmount,
         status: "Placed",
