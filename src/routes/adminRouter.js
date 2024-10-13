@@ -7,6 +7,7 @@ import { dashboardManager } from "../middleware/handleDashboard.js";
 import handleController from "../utils/constant.js";
 import { getAllUserMessages, getTotalPendingMessageCount, messageStatusUpdate } from "../controllers/adminControllers/contactController.js";
 import { createReports } from "../controllers/adminControllers/reportController.js";
+import { getPaymentData } from "../controllers/adminControllers/paymentController.js";
 
 const adminRouter = express.Router();
 
@@ -33,6 +34,8 @@ adminRouter.put("/orders/refund/:orderId",checkAuth,refundPayment)
 
 adminRouter.get("/dashboard",checkAuth,dashboardManager,handleController)
 adminRouter.post("/dashboard/create-report",checkAuth,createReports)
+
+adminRouter.get("/payment-activity",checkAuth,getPaymentData)
 
 
 adminRouter.get("/all-contact",checkAuth,getAllUserMessages)
