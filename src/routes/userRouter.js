@@ -12,6 +12,7 @@ import { searchProducts } from "../controllers/userControllers/searchController.
 import { login, signUp } from "../controllers/authController/authController.js";
 import { sendMessage } from "../controllers/userControllers/contactController.js";
 import { createOrUpdateWallet, createWalletTransaction, getWalletData } from "../controllers/userControllers/walletController.js";
+import { getUserInfo, updateUserInfo } from "../controllers/userControllers/userInfoController.js";
 
 const userRouter = express.Router();
 
@@ -46,6 +47,8 @@ userRouter.post("/wallet",checkAuth, createOrUpdateWallet);
 userRouter.post("/wallet/transaction",checkAuth, createWalletTransaction);
 userRouter.get("/wallet/:id",checkAuth, getWalletData);
 
+userRouter.get("/profile/:userId", checkAuth, getUserInfo);
+userRouter.put("/profile/:userId", checkAuth, updateUserInfo);
 
 userRouter.post("/:id/address",checkAuth,addAddress)
 userRouter.get("/:id/address",checkAuth,getAddress)
