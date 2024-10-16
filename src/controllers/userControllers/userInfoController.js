@@ -12,7 +12,6 @@ export const getUserInfo = async (req, res) => {
   }
 };
 
-// Update User Information
 export const updateUserInfo = async (req, res) => {
   try {
     const userId = req.params.userId;
