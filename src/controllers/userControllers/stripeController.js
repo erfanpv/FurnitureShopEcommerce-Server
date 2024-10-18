@@ -65,8 +65,8 @@ export const stripeIntent = async (req, res) => {
       shipping_address_collection: {
         allowed_countries: ["IN"],
       },
-      success_url: `http://localhost:3000/api/users/payment/success/${userId}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: "http://localhost:5173/products/cart/mycart",
+      success_url: `https://furnitureshopecommerce-server-1.onrender.com/api/users/payment/success/${userId}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: "https://furniture-shop-ecommerce-client.vercel.app/products/cart/mycart",
     });
 
     paymentData = {
@@ -155,7 +155,7 @@ export const successPayment = async (req, res) => {
       
       await cartDb.deleteOne({ _id: new mongoose.Types.ObjectId(cartId) });
 
-      await res.redirect("http://localhost:5173/payment/success/payment");
+      await res.redirect("https://furniture-shop-ecommerce-client.vercel.app/payment/success/payment");
 
     }
 
