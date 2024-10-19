@@ -41,10 +41,17 @@ export const createWalletTransaction = async (req, res) => {
 
 export const getWalletData = async (req, res) => {
   try {
-    const wallet = await walletDb.findOne({ userId: req.params.id });
+    const userId = req.params.id;
+    
+    const wallet = await walletDb.findOne({ userId }).lean();
+
     if (!wallet) return res.status(404).send("Wallet not found");
+
+    wallet.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     res.json(wallet);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+

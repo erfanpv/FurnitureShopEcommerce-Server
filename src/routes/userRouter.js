@@ -5,7 +5,7 @@ import { loadCart, removeCart } from "../controllers/userControllers/cartControl
 import handleCartAction from "../middleware/handleCartAction.js";
 import checkAuth from "../middleware/checkAuth.js";
 import { returnOrCancelOrder, createOrder,  createOrderbyCart,  getOrdersByUser } from "../controllers/userControllers/orderController.js";
-import { addAddress, getAddress, updateAddress } from "../controllers/userControllers/addressController.js";
+import { addAddress , deleteAddress, getAllAddresses, updateAddress } from "../controllers/userControllers/addressController.js";
 import handleController from "../utils/constant.js";
 import { stripeIntent, successPayment } from "../controllers/userControllers/stripeController.js";
 import { searchProducts } from "../controllers/userControllers/searchController.js";
@@ -50,9 +50,10 @@ userRouter.get("/wallet/:id",checkAuth, getWalletData);
 userRouter.get("/profile/:userId", checkAuth, getUserInfo);
 userRouter.put("/profile/:userId", checkAuth, updateUserInfo);
 
-userRouter.post("/:id/address",checkAuth,addAddress)
-userRouter.get("/:id/address",checkAuth,getAddress)
-userRouter.put("/:id/address",checkAuth,updateAddress)
+userRouter.post("/address/:id",checkAuth,addAddress)
+userRouter.get("/address/:id",checkAuth,getAllAddresses)
+userRouter.put("/address/:id",checkAuth,updateAddress)
+userRouter.delete("/address/:id",checkAuth,deleteAddress)
 
 userRouter.post("/:id/contact",checkAuth,sendMessage)
 

@@ -1,4 +1,5 @@
 import userDb from "../../models/schemas/userSchema.js";
+
 export const getUserInfo = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -15,8 +16,8 @@ export const getUserInfo = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const userId = req.params.userId;
+    console.log("erfan",req.body)
     const { firstName, lastName, email, phone } = req.body;
-    console.log(req.body)
     const updatedUser = await userDb.findByIdAndUpdate(
       userId,
       { firstName, lastName, email, phone },

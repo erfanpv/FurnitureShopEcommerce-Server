@@ -2,6 +2,7 @@ import productDb from "../../models/schemas/productSchema.js";
 
 export const getAllProducts = async (req, res) => {
   try {
+
     const productsList = await productDb.find({is_Listed: { $ne: false } });    
 
     if (!productsList || productsList?.length===0) {
